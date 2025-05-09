@@ -1,44 +1,88 @@
-# 10x Astro Starter
+# Fiszki (AI-powered Flashcards)
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+## Table of Contents
+
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+
+Fiszki is a web application that enables efficient creation and use of educational flashcards with the help of artificial intelligence. The application allows users to quickly generate high-quality flashcards based on input text and then use them in a learning process that utilizes spaced repetition.
+
+The application is aimed at learners who want to maximize the effectiveness of their knowledge acquisition process while minimizing the time needed to prepare educational materials. The MVP focuses on the basic functionality of generating, managing, and using text-based flashcards.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
 
-## Prerequisites
+- Astro 5 - For fast, efficient pages with minimal JavaScript
+- React 19 - For interactive components
+- TypeScript 5 - For static typing and better IDE support
+- Tailwind 4 - For styling
+- Shadcn/ui - For accessible React components
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### Backend
 
-## Getting Started
+- Supabase - Comprehensive backend solution providing:
+  - PostgreSQL database
+  - SDK for Backend-as-a-Service
+  - Built-in user authentication
 
-1. Clone the repository:
+### AI Integration
+
+- Openrouter.ai - Communication with AI models from OpenAI, Anthropic, Google, and others
+
+### CI/CD & Hosting
+
+- GitHub Actions - For CI/CD pipelines
+- DigitalOcean - For hosting via Docker image
+
+## Getting Started Locally
+
+### Prerequisites
+
+- Node.js v22.14.0 (as specified in .nvmrc)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone https://github.com/yourusername/fiszki.git
+cd fiszki
 ```
 
-2. Install dependencies:
+2. Use the correct Node.js version
+
+```bash
+# If you use nvm
+nvm use
+```
+
+3. Install dependencies
 
 ```bash
 npm install
 ```
 
-3. Run the development server:
+4. Setup environment variables
+
+```bash
+# Create a .env file based on .env.example (if available)
+cp .env.example .env
+# Edit .env with your Supabase and OpenRouter credentials
+```
+
+5. Start the development server
 
 ```bash
 npm run dev
-```
-
-4. Build for production:
-
-```bash
-npm run build
 ```
 
 ## Available Scripts
@@ -46,49 +90,58 @@ npm run build
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- `npm run astro` - Run Astro CLI commands
+- `npm run lint` - Run ESLint to check code
+- `npm run lint:fix` - Fix ESLint issues automatically
+- `npm run format` - Format code with Prettier
 
-## Project Structure
+## Project Scope
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### MVP Features
 
-## AI Development Support
+1. User account system
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+   - Registration, login, and account management
+   - Secure user data storage
+   - Password reset
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+2. AI flashcard generation
 
-### Cursor IDE
+   - Text input by user
+   - Generation of up to 5 flashcard suggestions
+   - Preview, edit, and accept generated flashcards
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+3. Manual flashcard creation
 
-### GitHub Copilot
+   - Simple form with text fields for front and back
+   - Character limits: title up to 100 characters, content up to 1000 characters
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+4. Flashcard management
 
-### Windsurf
+   - Browse all user flashcards
+   - View, edit, and delete individual flashcards
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
+5. Learning system
+   - Integration with open-source spaced repetition algorithm
+   - Flashcard presentation according to review schedule
+   - Learning progress evaluation
 
-## Contributing
+### Out of Scope for MVP
 
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+- Custom advanced repetition algorithms
+- Multiple format imports (PDF, DOCX, etc.)
+- Flashcard sharing between users
+- Mobile applications
+- Multimedia flashcards (images, audio, video)
+- Categorization/tagging
+- Statistics and detailed learning progress analysis
+- Flashcard export to other formats
+- Social features (comments, sharing, etc.)
+
+## Project Status
+
+This project is currently in MVP development phase. The core features are being implemented with a focus on creating a functional and efficient learning tool.
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the LICENSE file for details.
