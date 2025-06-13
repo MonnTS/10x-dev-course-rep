@@ -34,6 +34,10 @@ runs:
       run: npm run lint
       shell: bash
 
+    - name: Build project
+      shell: bash
+      run: npm run build
+
     - name: Run unit tests with coverage
       run: npm run test
       shell: bash
