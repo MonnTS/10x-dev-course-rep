@@ -15,9 +15,9 @@ const getId = (id: string | undefined): number => {
 
 export const GET: APIRoute = async ({ locals, params }) => {
   const errorLogService = new ErrorLogService(locals.supabase);
+  const user = (await locals.supabase.auth.getUser()).data.user;
+  const userId = user?.id;
   try {
-    const session = await locals.supabase.auth.getSession();
-    const userId = session.data.session?.user.id;
     if (!userId) {
       return new Response(null, { status: 401 });
     }
@@ -38,17 +38,15 @@ export const GET: APIRoute = async ({ locals, params }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    const userId = (await locals.supabase.auth.getSession()).data.session?.user
-      .id;
     return createErrorResponse(error, errorLogService, userId);
   }
 };
 
 export const PUT: APIRoute = async ({ locals, params, request }) => {
   const errorLogService = new ErrorLogService(locals.supabase);
+  const user = (await locals.supabase.auth.getUser()).data.user;
+  const userId = user?.id;
   try {
-    const session = await locals.supabase.auth.getSession();
-    const userId = session.data.session?.user.id;
     if (!userId) {
       return new Response(null, { status: 401 });
     }
@@ -71,21 +69,18 @@ export const PUT: APIRoute = async ({ locals, params, request }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    const userId = (await locals.supabase.auth.getSession()).data.session?.user
-      .id;
     return createErrorResponse(error, errorLogService, userId);
   }
 };
 
 export const DELETE: APIRoute = async ({ locals, params }) => {
   const errorLogService = new ErrorLogService(locals.supabase);
+  const user = (await locals.supabase.auth.getUser()).data.user;
+  const userId = user?.id;
+  if (!userId) {
+    return new Response(null, { status: 401 });
+  }
   try {
-    const session = await locals.supabase.auth.getSession();
-    const userId = session.data.session?.user.id;
-    if (!userId) {
-      return new Response(null, { status: 401 });
-    }
-
     const id = getId(params.id);
     const flashcardService = new FlashcardService(
       locals.supabase,
@@ -99,8 +94,6 @@ export const DELETE: APIRoute = async ({ locals, params }) => {
 
     return new Response(null, { status: 204 });
   } catch (error) {
-    const userId = (await locals.supabase.auth.getSession()).data.session?.user
-      .id;
     return createErrorResponse(error, errorLogService, userId);
   }
 };

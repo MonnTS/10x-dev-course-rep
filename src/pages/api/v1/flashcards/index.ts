@@ -2,7 +2,10 @@ import type { APIRoute } from 'astro';
 import { FlashcardService } from '../../../../lib/services/flashcard/flashcard.service';
 import { ErrorLogService } from '../../../../lib/services/error/error-log.service';
 import { createErrorResponse } from '../../../../lib/utils/api-response.util';
-import { listFlashcardsSchema } from '../../../../lib/validators/flashcard.validator';
+import {
+  listFlashcardsSchema,
+  createFlashcardSchema,
+} from '../../../../lib/validators/flashcard.validator';
 import { z } from 'zod';
 
 export const prerender = false;
@@ -10,8 +13,8 @@ export const prerender = false;
 export const GET: APIRoute = async ({ locals, url }) => {
   const errorLogService = new ErrorLogService(locals.supabase);
   const { searchParams } = url;
-  const session = await locals.supabase.auth.getSession();
-  const userId = session.data.session?.user.id;
+  const user = (await locals.supabase.auth.getUser()).data.user;
+  const userId = user?.id;
   try {
     if (!userId) {
       return new Response(null, { status: 401 });
@@ -49,19 +52,6 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 };
 
-const createFlashcardSchema = z.object({
-  front: z
-    .string()
-    .min(1, 'Front side cannot be empty')
-    .max(100, 'Front side cannot exceed 100 characters'),
-  back: z
-    .string()
-    .min(1, 'Back side cannot be empty')
-    .max(1000, 'Back side cannot exceed 1000 characters'),
-  source: z.literal('manual'),
-  generation_id: z.null(),
-});
-
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const supabase = locals.supabase;
@@ -79,12 +69,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const { data: flashcard, error } = await supabase
       .from('flashcards')
-      .insert([
-        {
-          ...validatedData,
-          user_id: user.id,
-        },
-      ])
+      .insert({
+        ...validatedData,
+        source: validatedData.source ?? 'manual',
+        user_id: user.id,
+      })
       .select('id')
       .single();
 

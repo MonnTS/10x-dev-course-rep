@@ -4,19 +4,17 @@ import { Textarea } from '@/components/ui/textarea';
 import type { ProposalState } from '@/lib/hooks/useProposals';
 import { Button } from '@/components/ui/button';
 import { Label } from '@radix-ui/react-label';
+import {
+  FLASHCARD_FRONT_MAX_LENGTH,
+  FLASHCARD_BACK_MAX_LENGTH,
+} from '@/lib/validators/flashcard.validator';
 
 interface FlashcardProposalItemProps {
   proposal: ProposalState;
-  // eslint-disable-next-line no-unused-vars
   onUpdate: (id: string, newFront: string, newBack: string) => void;
-  // eslint-disable-next-line no-unused-vars
   onToggleSelect: (id: string, isSelected: boolean) => void;
-  // eslint-disable-next-line no-unused-vars
   onToggleEdit: (id: string, isEditing: boolean) => void;
 }
-
-const FRONT_MAX_LENGTH = 200;
-const BACK_MAX_LENGTH = 500;
 
 const FlashcardProposalItem = ({
   proposal,
@@ -25,10 +23,10 @@ const FlashcardProposalItem = ({
   onToggleEdit,
 }: FlashcardProposalItemProps) => {
   const isFrontInvalid =
-    proposal.current.front.length > FRONT_MAX_LENGTH ||
+    proposal.current.front.length > FLASHCARD_FRONT_MAX_LENGTH ||
     proposal.current.front.length === 0;
   const isBackInvalid =
-    proposal.current.back.length > BACK_MAX_LENGTH ||
+    proposal.current.back.length > FLASHCARD_BACK_MAX_LENGTH ||
     proposal.current.back.length === 0;
 
   return (
@@ -39,11 +37,11 @@ const FlashcardProposalItem = ({
             htmlFor={`checkbox-${proposal.id}`}
             className="font-normal leading-none"
           >
-            Zaznacz fiszkę do zapisu
+            Select flashcard to save
           </Label>
           <Checkbox
             id={`checkbox-${proposal.id}`}
-            aria-label="Zaznacz fiszkę do zapisu"
+            aria-label="Select flashcard to save"
             checked={proposal.isSelected}
             onCheckedChange={(checked) =>
               onToggleSelect(proposal.id, !!checked)
@@ -68,7 +66,7 @@ const FlashcardProposalItem = ({
             onChange={(e) =>
               onUpdate(proposal.id, e.target.value, proposal.current.back)
             }
-            maxLength={FRONT_MAX_LENGTH}
+            maxLength={FLASHCARD_FRONT_MAX_LENGTH}
             disabled={!proposal.isEditing}
             placeholder="Question / Concept"
             aria-label="Question"
@@ -78,7 +76,7 @@ const FlashcardProposalItem = ({
           <p
             className={`text-sm text-right ${isFrontInvalid ? 'text-destructive' : 'text-muted-foreground'}`}
           >
-            {proposal.current.front.length} / {FRONT_MAX_LENGTH}
+            {proposal.current.front.length} / {FLASHCARD_FRONT_MAX_LENGTH}
           </p>
         </div>
         <div className="grid gap-1.5">
@@ -88,14 +86,16 @@ const FlashcardProposalItem = ({
             onChange={(e) =>
               onUpdate(proposal.id, proposal.current.front, e.target.value)
             }
-            maxLength={BACK_MAX_LENGTH}
+            maxLength={FLASHCARD_BACK_MAX_LENGTH}
             disabled={!proposal.isEditing}
+            placeholder="Answer / Explanation"
+            aria-label="Answer"
             className={`min-h-[100px] ${isBackInvalid ? 'border-destructive' : ''}`}
           />
           <p
             className={`text-sm text-right ${isBackInvalid ? 'text-destructive' : 'text-muted-foreground'}`}
           >
-            {proposal.current.back.length} / {BACK_MAX_LENGTH}
+            {proposal.current.back.length} / {FLASHCARD_BACK_MAX_LENGTH}
           </p>
         </div>
       </CardContent>

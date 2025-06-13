@@ -1,9 +1,10 @@
 import { useReducer, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type { FlashcardProposal } from '@/types';
-
-const FRONT_MAX_LENGTH = 200;
-const BACK_MAX_LENGTH = 500;
+import {
+  FLASHCARD_FRONT_MAX_LENGTH,
+  FLASHCARD_BACK_MAX_LENGTH,
+} from '@/lib/validators/flashcard.validator';
 
 export interface ProposalState {
   id: string;
@@ -28,9 +29,9 @@ type ProposalsAction =
 const validateProposal = (proposal: FlashcardProposal): boolean => {
   return (
     proposal.front.length > 0 &&
-    proposal.front.length <= FRONT_MAX_LENGTH &&
+    proposal.front.length <= FLASHCARD_FRONT_MAX_LENGTH &&
     proposal.back.length > 0 &&
-    proposal.back.length <= BACK_MAX_LENGTH
+    proposal.back.length <= FLASHCARD_BACK_MAX_LENGTH
   );
 };
 

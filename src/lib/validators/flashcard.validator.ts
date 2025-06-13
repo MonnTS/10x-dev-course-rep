@@ -1,17 +1,28 @@
 import { z } from 'zod';
 
+export const FLASHCARD_FRONT_MAX_LENGTH = 200;
+export const FLASHCARD_BACK_MAX_LENGTH = 500;
+
 export const createFlashcardSchema = z.object({
-  front: z.string().min(1, 'Front is required').max(200),
-  back: z.string().min(1, 'Back is required').max(500),
+  front: z.string().min(1, 'Front is required').max(FLASHCARD_FRONT_MAX_LENGTH),
+  back: z.string().min(1, 'Back is required').max(FLASHCARD_BACK_MAX_LENGTH),
   source: z.enum(['manual', 'ai-full', 'ai-edited']).optional(),
-  generation_id: z.string().uuid().optional(),
+  generation_id: z.string().uuid().nullable().optional(),
 });
 
 export const createFlashcardsSchema = z.array(createFlashcardSchema);
 
 export const updateFlashcardSchema = z.object({
-  front: z.string().min(1, 'Front is required').max(200).optional(),
-  back: z.string().min(1, 'Back is required').max(500).optional(),
+  front: z
+    .string()
+    .min(1, 'Front is required')
+    .max(FLASHCARD_FRONT_MAX_LENGTH)
+    .optional(),
+  back: z
+    .string()
+    .min(1, 'Back is required')
+    .max(FLASHCARD_BACK_MAX_LENGTH)
+    .optional(),
 });
 
 export const listFlashcardsSchema = z.object({

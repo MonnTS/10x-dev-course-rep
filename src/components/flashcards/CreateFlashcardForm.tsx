@@ -28,6 +28,11 @@ import {
 import { PenLine } from 'lucide-react';
 import { useCallback, useState, useEffect } from 'react';
 import type { CreateFlashcard } from '@/types';
+import {
+  createFlashcardSchema,
+  FLASHCARD_FRONT_MAX_LENGTH,
+  FLASHCARD_BACK_MAX_LENGTH,
+} from '@/lib/validators/flashcard.validator';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,17 +41,6 @@ const queryClient = new QueryClient({
       retry: 1,
     },
   },
-});
-
-const createFlashcardSchema = z.object({
-  front: z
-    .string()
-    .min(1, 'Front side cannot be empty')
-    .max(100, 'Front side cannot exceed 100 characters'),
-  back: z
-    .string()
-    .min(1, 'Back side cannot be empty')
-    .max(1000, 'Back side cannot exceed 1000 characters'),
 });
 
 type CreateFlashcardFormData = z.infer<typeof createFlashcardSchema>;
@@ -66,12 +60,23 @@ async function createFlashcard(
     } satisfies CreateFlashcard),
   });
 
+  const responseData = await response.json();
+
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to create flashcard');
+    if (
+      responseData.error === 'Invalid flashcard data' &&
+      Array.isArray(responseData.details)
+    ) {
+      const error = new Error('Validation failed');
+      error.name = 'ValidationError';
+      // @ts-expect-error - Adding custom property for validation errors
+      error.validationErrors = responseData.details;
+      throw error;
+    }
+    throw new Error(responseData.error || 'Failed to create flashcard');
   }
 
-  return response.json();
+  return responseData;
 }
 
 function CreateFlashcardFormContent() {
@@ -105,14 +110,41 @@ function CreateFlashcardFormContent() {
       setTimeout(navigateToList, 1000);
     },
     onError: (error) => {
-      toast.error('Failed to create flashcard', {
-        description:
-          error instanceof Error ? error.message : 'Unknown error occurred',
-      });
+      // Handle validation errors from the server
+      if (error instanceof Error && error.name === 'ValidationError') {
+        // @ts-expect-error - Accessing custom property
+        const validationErrors = error.validationErrors;
+
+        // Set form errors from server validation
+        if (Array.isArray(validationErrors)) {
+          validationErrors.forEach((err) => {
+            if (err.path?.[0]) {
+              form.setError(err.path[0] as 'front' | 'back', {
+                type: 'server',
+                message: err.message,
+              });
+            }
+          });
+
+          // Show a toast with the first validation error
+          const firstError = validationErrors[0];
+          toast.error('Validation Error', {
+            description:
+              firstError?.message || 'Please check the form for errors',
+          });
+        }
+      } else {
+        toast.error('Failed to create flashcard', {
+          description:
+            error instanceof Error ? error.message : 'Unknown error occurred',
+        });
+      }
     },
   });
 
   const onSubmit = (data: CreateFlashcardFormData) => {
+    // Clear any existing errors before submitting
+    form.clearErrors();
     createFlashcardMutation.mutate(data);
   };
 
@@ -128,7 +160,9 @@ function CreateFlashcardFormContent() {
             Create New Flashcard
           </CardTitle>
           <CardDescription className="text-base">
-            Fill in both sides of your flashcard below
+            Fill in both sides of your flashcard below. Front side is limited to{' '}
+            {FLASHCARD_FRONT_MAX_LENGTH} characters, back side to{' '}
+            {FLASHCARD_BACK_MAX_LENGTH} characters.
           </CardDescription>
         </CardHeader>
         <CardContent className="relative space-y-6">
@@ -146,10 +180,16 @@ function CreateFlashcardFormContent() {
                       <Textarea
                         placeholder="Enter the question or concept"
                         className="resize-none min-h-[100px] bg-background/50 focus:bg-background transition-colors"
+                        maxLength={FLASHCARD_FRONT_MAX_LENGTH}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <div className="flex justify-between items-center mt-1">
+                      <FormMessage />
+                      <span className="text-sm text-muted-foreground">
+                        {field.value.length} / {FLASHCARD_FRONT_MAX_LENGTH}
+                      </span>
+                    </div>
                   </FormItem>
                 )}
               />
@@ -165,10 +205,16 @@ function CreateFlashcardFormContent() {
                       <Textarea
                         placeholder="Enter the answer or explanation"
                         className="resize-none min-h-[150px] bg-background/50 focus:bg-background transition-colors"
+                        maxLength={FLASHCARD_BACK_MAX_LENGTH}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <div className="flex justify-between items-center mt-1">
+                      <FormMessage />
+                      <span className="text-sm text-muted-foreground">
+                        {field.value.length} / {FLASHCARD_BACK_MAX_LENGTH}
+                      </span>
+                    </div>
                   </FormItem>
                 )}
               />

@@ -15,16 +15,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     data: { session },
   } = await supabase.auth.getSession();
 
-  let user = null;
-  if (session) {
-    const {
-      data: { user: u },
-    } = await supabase.auth.getUser();
-    user = u;
-  }
-
   context.locals.supabase = supabase;
-  context.locals.user = user;
+  context.locals.user = (await supabase.auth.getUser()).data.user;
 
   if (protectedPaths.includes(url.pathname) && !session) {
     return redirect('/login');
