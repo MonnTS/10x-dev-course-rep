@@ -15,10 +15,3 @@ jobs:
       - name: Run quality checks
         uses: ./.github/actions/quality-checks
         id: quality-checks
-
-      - name: Create status comment
-        uses: ./.github/actions/create-status-comment
-        with:
-          coverage-data: ${{ steps.quality-checks.outputs.coverage-data }}
-          event-name: 'pull_request'
-          issue-number: ${{ github.event.pull_request.number }}
