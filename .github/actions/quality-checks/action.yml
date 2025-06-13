@@ -44,10 +44,3 @@ runs:
         name: coverage-report
         path: coverage/
         retention-days: ${{ inputs.coverage-retention-days }}
-
-    - name: Get coverage data
-      id: get-coverage
-      shell: bash
-      run: |
-        COVERAGE_DATA=$(cat ./coverage/coverage-summary.json | jq -c .total)
-        echo "coverage-data=${COVERAGE_DATA}" >> $GITHUB_OUTPUT
