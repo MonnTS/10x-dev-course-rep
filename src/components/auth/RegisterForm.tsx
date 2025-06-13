@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-
 import { RegisterSchema } from '@/lib/validators/auth';
+import { useRegister } from '@/lib/hooks/useRegister';
 import {
   Card,
   CardContent,
@@ -23,9 +23,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-export function RegisterForm({ className }: { className?: string }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+function RegisterFormInner({ className }: { className?: string }) {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -37,38 +37,28 @@ export function RegisterForm({ className }: { className?: string }) {
     },
   });
 
+  const registerMutation = useRegister();
+
   async function onSubmit(values: z.infer<typeof RegisterSchema>) {
-    setIsSubmitting(true);
     setIsSuccess(false);
     form.clearErrors();
-
-    try {
-      const response = await fetch('/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (response.ok) {
+    registerMutation.mutate(values, {
+      onSuccess: () => {
         setIsSuccess(true);
-      } else {
-        const data = await response.json();
+      },
+      onError: (error) => {
         form.setError('root', {
           type: 'manual',
-          message: data.error ?? 'Registration failed. Please try again.',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Registration failed. Please try again.',
         });
-      }
-    } catch {
-      form.setError('root', {
-        type: 'manual',
-        message: 'Unexpected error occurred. Please try again.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+    });
   }
+
+  const isSubmitting = registerMutation.isPending;
 
   return (
     <Card className={cn('w-full max-w-md', className)}>
@@ -164,5 +154,14 @@ export function RegisterForm({ className }: { className?: string }) {
         </a>
       </CardFooter>
     </Card>
+  );
+}
+
+export function RegisterForm({ className }: { className?: string }) {
+  const [queryClient] = useState(() => new QueryClient());
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RegisterFormInner className={className} />
+    </QueryClientProvider>
   );
 }

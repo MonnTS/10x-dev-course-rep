@@ -4,27 +4,31 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import type { FlashcardsListResponse } from '@/types';
 
+export type SortField = 'created_at' | 'source' | 'front' | 'back';
+export type SortOrder = 'asc' | 'desc';
+
 export function useFlashcards() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // Default page size
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'created_at' | 'front' | 'back'>(
-    'created_at'
-  );
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sourceFilter, setSourceFilter] = useState('');
+  const [sortBy, setSortBy] = useState<SortField>('created_at');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const query = useQuery({
-    queryKey: ['flashcards', page, pageSize, searchTerm, sortBy, sortOrder],
+    queryKey: ['flashcards', page, pageSize, sourceFilter, sortBy, sortOrder],
     queryFn: () => {
       const params = new URLSearchParams({
         page: page.toString(),
         pageSize: pageSize.toString(),
-        search: searchTerm,
         sortBy,
-        sortOrder,
+        order: sortOrder,
       });
+
+      if (sourceFilter && sourceFilter !== '') {
+        params.append('source', sourceFilter);
+      }
+
       return getFlashcards(params);
     },
     placeholderData: (previousData) => previousData,
@@ -39,14 +43,14 @@ export function useFlashcards() {
         'flashcards',
         page,
         pageSize,
-        searchTerm,
+        sourceFilter,
         sortBy,
         sortOrder,
       ]);
 
       if (previous) {
         queryClient.setQueryData(
-          ['flashcards', page, pageSize, searchTerm, sortBy, sortOrder],
+          ['flashcards', page, pageSize, sourceFilter, sortBy, sortOrder],
           {
             ...previous,
             data: previous.data.filter((f) => f.id !== id),
@@ -59,7 +63,7 @@ export function useFlashcards() {
     onError: (_error, _id, context) => {
       if (context?.previous) {
         queryClient.setQueryData(
-          ['flashcards', page, pageSize, searchTerm, sortBy, sortOrder],
+          ['flashcards', page, pageSize, sourceFilter, sortBy, sortOrder],
           context.previous
         );
       }
@@ -98,8 +102,8 @@ export function useFlashcards() {
     setPage,
     pageSize,
     setPageSize,
-    searchTerm,
-    setSearchTerm,
+    sourceFilter,
+    setSourceFilter,
     sortBy,
     setSortBy,
     sortOrder,

@@ -25,6 +25,10 @@ export const listFlashcardsSchema = z.object({
     .optional()
     .default(20),
   search: z.string().optional(),
-  sortBy: z.enum(['created_at', 'updated_at']).optional().default('created_at'),
+  sortBy: z
+    .enum(['created_at', 'updated_at', 'source'])
+    .optional()
+    .default('created_at'),
   order: z.enum(['asc', 'desc']).optional().default('desc'),
+  source: z.enum(['manual', 'ai-full', 'ai-edited']).optional(),
 });

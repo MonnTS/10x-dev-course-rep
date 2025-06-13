@@ -9,13 +9,15 @@ import {
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ActionMenu } from './ActionMenu';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface FlashcardsTableProps {
   flashcards: Flashcard[];
   selectedIds: Set<string>;
   onToggleSelectAll: (isSelected: boolean) => void;
   onToggleSelectRow: (id: string) => void;
-  onDeleteSingle: (id: string) => void;
+  onDeleteRow: (id: string) => void;
 }
 
 export function FlashcardsTable({
@@ -23,11 +25,11 @@ export function FlashcardsTable({
   selectedIds,
   onToggleSelectAll,
   onToggleSelectRow,
-  onDeleteSingle,
+  onDeleteRow,
 }: FlashcardsTableProps) {
   const allVisibleSelected =
     flashcards.length > 0 && flashcards.every((f) => selectedIds.has(f.id));
-  const isIndeterminate =
+  const someSelected =
     !allVisibleSelected &&
     selectedIds.size > 0 &&
     flashcards.some((f) => selectedIds.has(f.id));
@@ -40,10 +42,16 @@ export function FlashcardsTable({
             <TableHead className="w-[40px]">
               <Checkbox
                 checked={allVisibleSelected}
-                // @ts-expect-error - Radix Checkbox supports indeterminate state
-                indeterminate={isIndeterminate}
-                onCheckedChange={(checked) => onToggleSelectAll(!!checked)}
+                data-state={
+                  someSelected
+                    ? 'indeterminate'
+                    : allVisibleSelected
+                      ? 'checked'
+                      : 'unchecked'
+                }
+                onCheckedChange={onToggleSelectAll}
                 aria-label="Select all"
+                disabled={flashcards.length === 0}
               />
             </TableHead>
             <TableHead>Front</TableHead>
@@ -80,7 +88,7 @@ export function FlashcardsTable({
                 <TableCell className="text-right">
                   <ActionMenu
                     flashcardId={flashcard.id}
-                    onDelete={() => onDeleteSingle(flashcard.id)}
+                    onDelete={() => onDeleteRow(flashcard.id)}
                   />
                 </TableCell>
               </TableRow>
@@ -88,7 +96,20 @@ export function FlashcardsTable({
           ) : (
             <TableRow>
               <TableCell colSpan={6} className="h-24 text-center">
-                No results.
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <p className="text-lg text-muted-foreground">
+                    It is so empty... Let&apos;s create new flashcards
+                  </p>
+                  <Button asChild variant="outline">
+                    <a
+                      href="/flashcards/new"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Flashcard
+                    </a>
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           )}

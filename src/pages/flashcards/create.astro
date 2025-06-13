@@ -1,0 +1,27 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { CreateFlashcardForm } from '@/components/flashcards/CreateFlashcardForm';
+---
+
+<Layout title="Create Flashcard">
+  <main
+    class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-16"
+  >
+    <div class="container flex flex-col items-center justify-center">
+      <div class="w-full max-w-2xl text-center mb-12">
+        <h1
+          class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60"
+        >
+          Create New Flashcard
+        </h1>
+        <p class="text-lg text-muted-foreground">
+          Create your flashcard by entering the question or concept on the front
+          side, and the answer or explanation on the back side.
+        </p>
+      </div>
+      <div class="w-full flex justify-center">
+        <CreateFlashcardForm client:load />
+      </div>
+    </div>
+  </main>
+</Layout>

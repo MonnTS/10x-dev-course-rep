@@ -1,5 +1,7 @@
 import { toast } from 'sonner';
-import { useState, useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import type { MutationStatus } from '@tanstack/react-query';
 import type {
   GenerateFlashcardsCommand,
   GenerateFlashcardsResponse,
@@ -8,27 +10,19 @@ import type {
 } from '@/types';
 
 type GenerationState = 'idle' | 'loading' | 'success' | 'error';
-type SaveState = 'idle' | 'loading' | 'success' | 'error';
 
 export const useGeneration = () => {
-  const [generationState, setGenerationState] =
-    useState<GenerationState>('idle');
-  const [saveState, setSaveState] = useState<SaveState>('idle');
   const [proposals, setProposals] = useState<FlashcardProposal[] | null>(null);
   const [generationId, setGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const generate = useCallback(async (cmd: GenerateFlashcardsCommand) => {
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
+  const generateMutation = useMutation({
+    mutationFn: async (cmd: GenerateFlashcardsCommand) => {
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
 
-    setGenerationState('loading');
-    setError(null);
-    setProposals(null);
-
-    try {
       const response = await fetch('/api/v1/generations', {
         method: 'POST',
         headers: {
@@ -43,30 +37,22 @@ export const useGeneration = () => {
         throw new Error(errorData.error || 'Wystąpił błąd serwera.');
       }
 
-      const data: GenerateFlashcardsResponse = await response.json();
+      return response.json() as Promise<GenerateFlashcardsResponse>;
+    },
+    onSuccess: (data) => {
       setProposals(data.flashcards);
       setGenerationId(data.generationId);
-      setGenerationState('success');
       toast.success('Flashcards generated successfully!');
-    } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        // Generation was cancelled, set state to idle and do nothing.
-        setGenerationState('idle');
-        return;
-      }
-      const errorMessage =
-        err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(errorMessage);
-      setGenerationState('error');
-      toast.error(errorMessage);
-    }
-  }, []);
+    },
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(message);
+      toast.error(message);
+    },
+  });
 
-  const save = useCallback(async (cmd: CreateFlashcardsBulkRequest) => {
-    setSaveState('loading');
-    setError(null);
-
-    try {
+  const saveMutation = useMutation({
+    mutationFn: async (cmd: CreateFlashcardsBulkRequest) => {
       const response = await fetch('/api/v1/flashcards/bulk', {
         method: 'POST',
         headers: {
@@ -81,25 +67,40 @@ export const useGeneration = () => {
           errorData.error || 'An error occurred while saving the flashcards.'
         );
       }
-
-      setSaveState('success');
+    },
+    onSuccess: () => {
       toast.success('Flashcards saved successfully!');
-      return { success: true, error: null };
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : 'An unknown error occurred while saving.';
-      setError(errorMessage);
-      setSaveState('error');
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
+    },
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : 'Error while saving flashcards';
+      setError(message);
+      toast.error(message);
+    },
+  });
+
+  const mapStatusToState = (status: MutationStatus): GenerationState => {
+    switch (status) {
+      case 'pending':
+        return 'loading';
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'error';
+      default:
+        return 'idle';
     }
-  }, []);
+  };
+
+  const generationState: GenerationState = mapStatusToState(
+    generateMutation.status
+  );
+  const saveState: GenerationState = mapStatusToState(saveMutation.status);
 
   const cancelGeneration = useCallback(() => {
     abortControllerRef.current?.abort();
-  }, []);
+    generateMutation.reset();
+  }, [generateMutation]);
 
   return {
     generationState,
@@ -107,8 +108,16 @@ export const useGeneration = () => {
     proposals,
     generationId,
     error,
-    generate,
-    save,
+    generate: generateMutation.mutate,
+    save: async (cmd: CreateFlashcardsBulkRequest) => {
+      try {
+        await saveMutation.mutateAsync(cmd);
+        return { success: true, error: null };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        return { success: false, error: message };
+      }
+    },
     cancelGeneration,
   };
 };

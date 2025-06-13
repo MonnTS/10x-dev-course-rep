@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import type { ProposalState } from '@/components/views/GenerateView';
+import type { ProposalState } from '@/lib/hooks/useProposals';
 import { Button } from '@/components/ui/button';
 import { Label } from '@radix-ui/react-label';
 

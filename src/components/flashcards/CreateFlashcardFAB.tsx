@@ -5,11 +5,12 @@ export function CreateFlashcardFAB() {
   return (
     <Button
       asChild
-      className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg"
+      size="lg"
+      className="fixed bottom-8 right-8 rounded-full shadow-lg"
     >
-      <a href="/generate">
-        <Plus className="h-8 w-8" />
-        <span className="sr-only">Create new flashcard</span>
+      <a href="/flashcards/new">
+        <Plus className="h-6 w-6" />
+        <span className="ml-2">Create Flashcard</span>
       </a>
     </Button>
   );

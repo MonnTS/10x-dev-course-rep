@@ -7,8 +7,25 @@ import { FlashcardsToolbar } from '@/components/flashcards/FlashcardsToolbar';
 import { DeleteConfirmationDialog } from '@/components/flashcards/DeleteConfirmationDialog';
 import { PaginationControls } from '@/components/flashcards/PaginationControls';
 import { CreateFlashcardFAB } from '@/components/flashcards/CreateFlashcardFAB';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
+import { Loader2, AlertCircle } from 'lucide-react';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+    },
+  },
+});
 
 type DialogState =
   | { type: 'closed' }
@@ -20,11 +37,16 @@ function FlashcardsViewContent() {
     data,
     isLoading,
     isError,
-    error,
     singleDeleteMutation,
     bulkDeleteMutation,
     page,
     setPage,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    sourceFilter,
+    setSourceFilter,
   } = useFlashcards();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [dialogState, setDialogState] = useState<DialogState>({
@@ -32,10 +54,16 @@ function FlashcardsViewContent() {
   });
 
   const flashcards = data?.data ?? [];
+  const totalFlashcards = data?.pagination?.total ?? 0;
+  const availableSources = Array.from(
+    new Set(flashcards.map((f) => f.source))
+  ).filter(Boolean);
+
+  const filteredFlashcards = flashcards;
 
   const handleToggleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
-      setSelectedIds(new Set(flashcards.map((f) => f.id)));
+      setSelectedIds(new Set(filteredFlashcards.map((f) => f.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -72,52 +100,80 @@ function FlashcardsViewContent() {
     singleDeleteMutation.isPending || bulkDeleteMutation.isPending;
 
   if (isLoading) {
-    return <div>Loading...</div>; // TODO: Replace with Skeleton Loader
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2 h-10 animate-pulse bg-muted rounded-md w-[180px]" />
+        <div className="border rounded-lg p-4">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">
+              Loading flashcards...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (isError) {
-    // TODO: Improve error display
-    return <div>Error: {error.message}</div>;
+    return (
+      <Card className="mx-auto max-w-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            {'Error Loading Flashcards'}
+          </CardTitle>
+          <CardDescription>{'Something went wrong'}</CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">My Flashcards</h1>
+    <div className="flex flex-col gap-4">
       <FlashcardsToolbar
         selectedCount={selectedIds.size}
         onDeleteSelected={() =>
-          setDialogState({ type: 'delete-bulk', ids: Array.from(selectedIds) })
+          setDialogState({
+            type: 'delete-bulk',
+            ids: Array.from(selectedIds),
+          })
         }
-        isDeleting={bulkDeleteMutation.isPending}
+        isDeleting={isDeleting}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortChange={setSortBy}
+        onSortOrderChange={setSortOrder}
+        sourceFilter={sourceFilter}
+        onSourceFilterChange={setSourceFilter}
+        availableSources={availableSources}
+        totalFlashcards={totalFlashcards}
       />
+
       <FlashcardsTable
-        flashcards={flashcards}
+        flashcards={filteredFlashcards}
         selectedIds={selectedIds}
         onToggleSelectAll={handleToggleSelectAll}
         onToggleSelectRow={handleToggleSelectRow}
-        onDeleteSingle={(id: string) =>
-          setDialogState({ type: 'delete-single', id })
-        }
+        onDeleteRow={(id) => setDialogState({ type: 'delete-single', id })}
       />
-      <PaginationControls
-        currentPage={page}
-        totalPages={data?.pagination?.pages ?? 1}
-        onPageChange={setPage}
-      />
+
+      {data?.pagination && (
+        <PaginationControls
+          currentPage={page}
+          totalPages={data.pagination.pages}
+          onPageChange={setPage}
+        />
+      )}
+
+      <CreateFlashcardFAB />
+
       <DeleteConfirmationDialog
         isOpen={dialogState.type !== 'closed'}
-        onOpenChange={(isOpen) => !isOpen && setDialogState({ type: 'closed' })}
+        onClose={() => setDialogState({ type: 'closed' })}
         onConfirm={handleDeleteConfirm}
-        isPending={isDeleting}
-        itemCount={
-          dialogState.type === 'delete-single'
-            ? 1
-            : dialogState.type === 'delete-bulk'
-              ? dialogState.ids.length
-              : 0
-        }
+        isDeleting={isDeleting}
       />
-      <CreateFlashcardFAB />
     </div>
   );
 }

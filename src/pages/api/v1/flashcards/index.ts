@@ -3,6 +3,7 @@ import { FlashcardService } from '../../../../lib/services/flashcard/flashcard.s
 import { ErrorLogService } from '../../../../lib/services/error/error-log.service';
 import { createErrorResponse } from '../../../../lib/utils/api-response.util';
 import { listFlashcardsSchema } from '../../../../lib/validators/flashcard.validator';
+import { z } from 'zod';
 
 export const prerender = false;
 
@@ -27,6 +28,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       search: getParam('search'),
       sortBy: getParam('sortBy'),
       order: getParam('order'),
+      source: getParam('source'),
     });
 
     const flashcardService = new FlashcardService(
@@ -47,28 +49,85 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ locals, request }) => {
-  const errorLogService = new ErrorLogService(locals.supabase);
-  const session = await locals.supabase.auth.getSession();
-  const userId = session.data.session?.user.id;
+const createFlashcardSchema = z.object({
+  front: z
+    .string()
+    .min(1, 'Front side cannot be empty')
+    .max(100, 'Front side cannot exceed 100 characters'),
+  back: z
+    .string()
+    .min(1, 'Back side cannot be empty')
+    .max(1000, 'Back side cannot exceed 1000 characters'),
+  source: z.literal('manual'),
+  generation_id: z.null(),
+});
+
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    if (!userId) {
-      return new Response(null, { status: 401 });
+    const supabase = locals.supabase;
+    const user = locals.user;
+
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const input = await request.json();
+    const body = await request.json();
+    const validatedData = createFlashcardSchema.parse(body);
 
-    const flashcardService = new FlashcardService(
-      locals.supabase,
-      errorLogService
-    );
-    const flashcard = await flashcardService.createFlashcard(input, userId);
+    const { data: flashcard, error } = await supabase
+      .from('flashcards')
+      .insert([
+        {
+          ...validatedData,
+          user_id: user.id,
+        },
+      ])
+      .select('id')
+      .single();
+
+    if (error) {
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to create flashcard',
+          details: error.message,
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     return new Response(JSON.stringify(flashcard), {
       status: 201,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    return createErrorResponse(error, errorLogService, userId);
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid flashcard data',
+          details: error.errors,
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 };

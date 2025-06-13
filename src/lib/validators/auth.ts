@@ -20,8 +20,11 @@ export const RegisterSchema = z
   });
 
 export const LoginSchema = z.object({
-  email: z.string().email({ message: 'Niepoprawny format adresu email' }),
-  password: z.string().min(1, { message: 'Hasło jest wymagane' }),
+  email: z
+    .string()
+    .nonempty({ message: 'Email jest wymagany' })
+    .email({ message: 'Niepoprawny format adresu email' }),
+  password: z.string().nonempty({ message: 'Hasło jest wymagane' }),
 });
 
 export const ForgotPasswordSchema = z.object({

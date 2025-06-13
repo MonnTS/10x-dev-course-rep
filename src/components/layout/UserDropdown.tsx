@@ -46,6 +46,9 @@ export function UserDropdown({ userEmail }: { userEmail: string }) {
         >
           View my flashcards
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => (window.location.href = '/review')}>
+          Review flashcards
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
       </DropdownMenuContent>

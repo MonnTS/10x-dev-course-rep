@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useLogin } from '@/lib/hooks/useLogin';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
-
 import { LoginSchema } from '@/lib/validators/auth';
 import {
   Card,
@@ -24,42 +25,25 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/utils';
 
-export function LoginForm({ className }: { className?: string }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+function LoginFormInner({ className }: { className?: string }) {
+  const loginMutation = useLogin();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
   });
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
-    setIsSubmitting(true);
     form.clearErrors();
-
-    try {
-      const response = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (response.ok) {
-        window.location.href = '/flashcards';
-      } else {
+    loginMutation.mutate(values, {
+      onError: () => {
         form.setError('root', {
           type: 'manual',
           message: 'Nieprawidłowy email lub hasło.',
         });
-      }
-    } catch {
-      form.setError('root', {
-        type: 'manual',
-        message: 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+    });
   }
+
+  const isSubmitting = loginMutation.isPending;
 
   return (
     <Card className={cn('w-full max-w-md', className)}>
@@ -130,5 +114,14 @@ export function LoginForm({ className }: { className?: string }) {
         </p>
       </CardFooter>
     </Card>
+  );
+}
+
+export function LoginForm({ className }: { className?: string }) {
+  const [queryClient] = useState(() => new QueryClient());
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LoginFormInner className={className} />
+    </QueryClientProvider>
   );
 }

@@ -37,7 +37,7 @@ export class FlashcardService {
     params: z.infer<typeof listFlashcardsSchema> & { userId: string }
   ): Promise<FlashcardsListResponse> {
     try {
-      const { page, pageSize, search, sortBy, order } =
+      const { page, pageSize, search, sortBy, order, source } =
         listFlashcardsSchema.parse(params);
 
       const offset = (page - 1) * pageSize;
@@ -46,12 +46,17 @@ export class FlashcardService {
         .from('flashcards')
         .select('*', { count: 'exact' })
         .eq('user_id', params.userId)
-        .order(sortBy, { ascending: order === 'asc' })
-        .range(offset, offset + pageSize - 1);
+        .order(sortBy, { ascending: order === 'asc' });
+
+      if (source) {
+        query = query.eq('source', source);
+      }
 
       if (search) {
         query = query.textSearch('front', `'${search}'`);
       }
+
+      query = query.range(offset, offset + pageSize - 1);
 
       const { data, count, error } = await query;
 

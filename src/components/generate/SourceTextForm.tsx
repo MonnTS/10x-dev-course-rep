@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
-const MIN_LENGTH = 1000;
-const MAX_LENGTH = 10000;
+import { generateFlashcardsSchema } from '@/lib/validators/generation.validator';
+
+const MAX_LENGTH = 10_000;
 
 interface SourceTextFormProps {
   // eslint-disable-next-line no-unused-vars
@@ -13,16 +17,21 @@ interface SourceTextFormProps {
 }
 
 const SourceTextForm = ({ onGenerate, isLoading }: SourceTextFormProps) => {
-  const [sourceText, setSourceText] = useState('');
-  const textLength = sourceText.length;
-  const isValid = textLength >= MIN_LENGTH && textLength <= MAX_LENGTH;
+  const form = useForm<z.infer<typeof generateFlashcardsSchema>>({
+    resolver: zodResolver(generateFlashcardsSchema),
+    defaultValues: {
+      sourceText: '',
+    },
+    mode: 'onChange',
+  });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (isValid && !isLoading) {
+  const textLength = form.watch('sourceText').length;
+
+  const handleSubmit = form.handleSubmit(({ sourceText }) => {
+    if (!isLoading) {
       onGenerate(sourceText);
     }
-  };
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -33,25 +42,32 @@ const SourceTextForm = ({ onGenerate, isLoading }: SourceTextFormProps) => {
         <Textarea
           id="source-text"
           placeholder="Wklej tutaj tekst (od 1000 do 10000 znaków), z którego wygenerujemy fiszki..."
-          value={sourceText}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-            setSourceText(e.target.value)
-          }
+          {...form.register('sourceText')}
           rows={15}
           disabled={isLoading}
           className="min-h-[250px]"
         />
         <p
           className={`text-sm text-right ${
-            textLength > 0 && !isValid
+            form.formState.errors.sourceText
               ? 'text-red-500'
               : 'text-muted-foreground'
           }`}
         >
           {textLength} / {MAX_LENGTH}
         </p>
+        {form.formState.errors.sourceText && (
+          <p className="text-destructive text-sm">
+            {form.formState.errors.sourceText.message as string}
+          </p>
+        )}
       </div>
-      <Button type="submit" disabled={!isValid || isLoading} className="w-full">
+
+      <Button
+        type="submit"
+        disabled={!form.formState.isValid || isLoading}
+        className="w-full"
+      >
         {isLoading ? 'Generowanie...' : 'Generuj fiszki'}
       </Button>
     </form>

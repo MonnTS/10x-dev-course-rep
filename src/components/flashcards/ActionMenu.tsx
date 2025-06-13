@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-// TODO: Define and pass down onDelete and onEdit handlers
 interface ActionMenuProps {
   flashcardId: string;
   onDelete: () => void;
@@ -31,7 +30,7 @@ export function ActionMenu({ flashcardId, onDelete }: ActionMenuProps) {
         <DropdownMenuItem
           onClick={() => navigator.clipboard.writeText(flashcardId)}
         >
-          Copy ID (temp)
+          Copy ID
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

@@ -1,0 +1,28 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { CreateFlashcardChoice } from '@/components/flashcards/CreateFlashcardChoice';
+---
+
+<Layout title="Create Flashcards">
+  <main
+    class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center py-16"
+  >
+    <div class="container flex flex-col items-center justify-center">
+      <div class="w-full max-w-2xl text-center mb-12">
+        <h1
+          class="text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60"
+        >
+          Create Flashcards
+        </h1>
+        <p class="text-lg text-muted-foreground">
+          Choose how you want to create your flashcards. You can either let AI
+          help you generate them from your text content, or create them manually
+          for full control over the content.
+        </p>
+      </div>
+      <div class="w-full flex justify-center">
+        <CreateFlashcardChoice client:load />
+      </div>
+    </div>
+  </main>
+</Layout>

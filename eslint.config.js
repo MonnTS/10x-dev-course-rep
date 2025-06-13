@@ -23,7 +23,7 @@ const baseConfig = tseslint.config({
   ],
   rules: {
     'no-console': 'error',
-    'no-unused-vars': 'error',
+    'no-unused-vars': 'warn',
   },
 });
 

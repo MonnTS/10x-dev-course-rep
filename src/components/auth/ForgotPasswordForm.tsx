@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
+import { useForgotPassword } from '@/lib/hooks/useForgotPassword';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ForgotPasswordSchema } from '@/lib/validators/auth';
 import {
@@ -24,8 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/utils';
 
-export function ForgotPasswordForm({ className }: { className?: string }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+function ForgotPasswordFormInner({ className }: { className?: string }) {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof ForgotPasswordSchema>>({
@@ -35,38 +36,26 @@ export function ForgotPasswordForm({ className }: { className?: string }) {
     },
   });
 
+  const forgotPasswordMutation = useForgotPassword();
+
   async function onSubmit(values: z.infer<typeof ForgotPasswordSchema>) {
-    setIsSubmitting(true);
     setIsSuccess(false);
     form.clearErrors();
-
-    try {
-      const response = await fetch('/api/v1/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (response.ok) {
-        setIsSuccess(true);
-      } else {
-        const data = await response.json();
+    forgotPasswordMutation.mutate(values, {
+      onSuccess: () => setIsSuccess(true),
+      onError: (error) => {
         form.setError('root', {
           type: 'manual',
-          message: data.error ?? 'Failed to send reset link. Please try again.',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'Failed to send reset link. Please try again.',
         });
-      }
-    } catch {
-      form.setError('root', {
-        type: 'manual',
-        message: 'Unexpected error occurred. Please try again.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+    });
   }
+
+  const isSubmitting = forgotPasswordMutation.isPending;
 
   return (
     <Card className={cn('w-full max-w-md', className)}>
@@ -119,5 +108,14 @@ export function ForgotPasswordForm({ className }: { className?: string }) {
         </a>
       </CardFooter>
     </Card>
+  );
+}
+
+export function ForgotPasswordForm({ className }: { className?: string }) {
+  const [queryClient] = useState(() => new QueryClient());
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ForgotPasswordFormInner className={className} />
+    </QueryClientProvider>
   );
 }

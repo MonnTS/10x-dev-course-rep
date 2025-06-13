@@ -1,5 +1,5 @@
 import FlashcardProposalItem from './FlashcardProposalItem';
-import type { ProposalState } from '@/components/views/GenerateView';
+import type { ProposalState } from '@/lib/hooks/useProposals';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';

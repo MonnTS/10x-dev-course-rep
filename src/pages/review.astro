@@ -1,0 +1,11 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { ReviewFlashcards } from '@/components/flashcards/ReviewFlashcards';
+---
+
+<Layout title="Review Flashcards">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Review Flashcards</h1>
+    <ReviewFlashcards client:load />
+  </div>
+</Layout>
