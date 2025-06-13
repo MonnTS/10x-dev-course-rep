@@ -97,7 +97,6 @@ export class OpenRouterService {
     const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
     try {
-      console.log(body);
       const res = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -121,7 +120,6 @@ export class OpenRouterService {
       }
 
       if (!res.ok) {
-        console.log(res);
         throw new ApiStatusError(res.status, res.statusText);
       }
 
