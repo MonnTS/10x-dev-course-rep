@@ -29,6 +29,10 @@ function LoginFormInner({ className }: { className?: string }) {
   const loginMutation = useLogin();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   });
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
@@ -37,7 +41,7 @@ function LoginFormInner({ className }: { className?: string }) {
       onError: () => {
         form.setError('root', {
           type: 'manual',
-          message: 'Nieprawidłowy email lub hasło.',
+          message: 'Invalid email or password.',
         });
       },
     });
@@ -48,9 +52,9 @@ function LoginFormInner({ className }: { className?: string }) {
   return (
     <Card className={cn('w-full max-w-md', className)}>
       <CardHeader className="text-center">
-        <CardTitle>Zaloguj się</CardTitle>
+        <CardTitle>Sign In</CardTitle>
         <CardDescription>
-          Podaj swój email i hasło, aby uzyskać dostęp do panelu
+          Enter your email and password to access the dashboard
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -64,7 +68,7 @@ function LoginFormInner({ className }: { className?: string }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>EMail</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="name@example.com"
@@ -95,21 +99,21 @@ function LoginFormInner({ className }: { className?: string }) {
               )}
             />
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
+              {isSubmitting ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="text-sm text-center block space-y-2">
         <p>
-          Nie masz konta?{' '}
+          Don&apos;t have an account?{' '}
           <a href="/register" className="text-blue-600 hover:underline">
-            Zarejestruj się
+            Sign Up
           </a>
         </p>
         <p>
           <a href="/forgot-password" className="text-blue-600 hover:underline">
-            Nie pamiętasz hasła?
+            Forgot Password?
           </a>
         </p>
       </CardFooter>

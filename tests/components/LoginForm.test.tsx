@@ -13,8 +13,22 @@ import { LoginForm } from '@/components/auth/LoginForm';
 vi.mock('next/router', () => ({}));
 
 describe('<LoginForm />', () => {
+  let locationHref = '';
+
   beforeEach(() => {
     global.fetch = vi.fn();
+    locationHref = '';
+    Object.defineProperty(window, 'location', {
+      value: {
+        get href() {
+          return locationHref;
+        },
+        set href(value: string) {
+          locationHref = value;
+        },
+      },
+      writable: true,
+    });
   });
 
   afterEach(() => {
@@ -22,18 +36,21 @@ describe('<LoginForm />', () => {
   });
 
   it('calls login endpoint with correct payload', async () => {
-    (global.fetch as unknown as Mock).mockResolvedValue({ ok: true });
+    (global.fetch as unknown as Mock).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+    });
 
     render(<LoginForm />);
 
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'user@example.com' },
     });
-    fireEvent.change(screen.getByLabelText(/hasło/i), {
+    fireEvent.change(screen.getByLabelText(/password/i), {
       target: { value: 'Secret123' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /zaloguj się/i }));
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
@@ -48,6 +65,10 @@ describe('<LoginForm />', () => {
         })
       );
     });
+
+    await waitFor(() => {
+      expect(locationHref).toBe('/flashcards');
+    });
   });
 
   it('shows error when credentials invalid', async () => {
@@ -58,12 +79,12 @@ describe('<LoginForm />', () => {
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: 'user@example.com' },
     });
-    fireEvent.change(screen.getByLabelText(/hasło/i), {
+    fireEvent.change(screen.getByLabelText(/password/i), {
       target: { value: 'Secret123' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /zaloguj się/i }));
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-    const error = await screen.findByText(/nieprawidłowy email lub hasło/i);
+    const error = await screen.findByText(/invalid email or password/i);
     expect(error).toBeInTheDocument();
   });
 });
