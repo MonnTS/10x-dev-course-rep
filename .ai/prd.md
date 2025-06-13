@@ -92,7 +92,6 @@ W zakres MVP nie wchodzą następujące funkcjonalności:
   2. System weryfikuje poprawność danych logowania
   3. W przypadku niepoprawnych danych, system wyświetla ogólny komunikat błędu
   4. Po poprawnym logowaniu, użytkownik ma dostęp do wszystkich funkcji aplikacji
-  5. System umożliwia pozostanie zalogowanym (opcja "zapamiętaj mnie")
 
 ### US-003: Odzyskiwanie hasła
 
@@ -175,37 +174,7 @@ W zakres MVP nie wchodzą następujące funkcjonalności:
   4. Użytkownik otrzymuje potwierdzenie usunięcia fiszki
   5. Po usunięciu, użytkownik jest przekierowywany do listy fiszek
 
-### US-011: Rozpoczęcie sesji nauki
-
-- Jako użytkownik, chcę rozpocząć sesję nauki z moimi fiszkami, aby efektywnie przyswajać wiedzę.
-- Kryteria akceptacji:
-  1. Użytkownik może zainicjować sesję nauki z widoku listy fiszek
-  2. System wybiera fiszki do nauki zgodnie z algorytmem powtórek
-  3. Fiszki są prezentowane w odpowiedniej kolejności
-  4. Interfejs umożliwia przełączanie między przodem a tyłem fiszki
-  5. System informuje o liczbie fiszek w bieżącej sesji
-
-### US-012: Ocenianie znajomości materiału
-
-- Jako użytkownik, chcę ocenić mój poziom znajomości materiału na fiszce, aby algorytm powtórek mógł dostosować harmonogram nauki.
-- Kryteria akceptacji:
-  1. Po wyświetleniu obu stron fiszki, użytkownik może ocenić swoją znajomość materiału
-  2. Dostępne są co najmniej 3 poziomy oceny (np. "Nie wiem", "Częściowo pamiętam", "Dobrze pamiętam")
-  3. Na podstawie oceny, system aktualizuje harmonogram powtórek dla danej fiszki
-  4. Po ocenie, system automatycznie przechodzi do następnej fiszki
-  5. Oceny są zapisywane w bazie danych
-
-### US-013: Zakończenie sesji nauki
-
-- Jako użytkownik, chcę zakończyć sesję nauki, aby wrócić do niej później.
-- Kryteria akceptacji:
-  1. Użytkownik może w dowolnym momencie przerwać sesję nauki
-  2. System zapisuje postęp sesji
-  3. Użytkownik otrzymuje podsumowanie sesji (np. liczbę przeglądniętych fiszek)
-  4. Użytkownik jest przekierowywany do głównego widoku aplikacji
-  5. Przy ponownym rozpoczęciu nauki, sesja może być kontynuowana
-
-### US-014: Wylogowanie z aplikacji
+### US-011: Wylogowanie z aplikacji
 
 - Jako zalogowany użytkownik, chcę wylogować się z aplikacji, aby zabezpieczyć moje dane.
 - Kryteria akceptacji:

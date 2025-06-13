@@ -1,0 +1,10 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import FlashcardsView from '@/components/views/FlashcardsView';
+---
+
+<Layout title="Your Flashcards">
+  <main class="container mx-auto py-8">
+    <FlashcardsView client:load />
+  </main>
+</Layout>

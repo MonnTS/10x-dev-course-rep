@@ -1,0 +1,10 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { EditFlashcardForm } from '@/components/flashcards/EditFlashcardForm';
+
+const { id } = Astro.params;
+---
+
+<Layout title="Edit Flashcard">
+  <EditFlashcardForm client:load flashcardId={id} />
+</Layout>

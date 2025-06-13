@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-white dark:bg-gray-900">
+    <div class="flex min-h-screen">
+      <div
+        class="flex flex-1 flex-col justify-center items-center px-4 sm:px-6 lg:px-20 xl:px-24"
+      >
+        <div class="mx-auto w-full max-w-sm lg:w-96">
+          <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold">Fiszki</h1>
+            <p class="text-gray-500">Ucz się mądrzej, nie ciężej.</p>
+          </div>
+          <slot />
+        </div>
+      </div>
+      <div
+        class="hidden lg:flex lg:flex-1 bg-gray-50 dark:bg-gray-800 items-center justify-center"
+      >
+        <div class="max-w-md text-center p-8">
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+            Nauka nowej generacji
+          </h2>
+          <p class="mt-4 text-gray-600 dark:text-gray-300">
+            Twórz fiszki z dowolnego tekstu w kilka sekund. Oszczędzaj czas i
+            ucz się efektywniej.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
