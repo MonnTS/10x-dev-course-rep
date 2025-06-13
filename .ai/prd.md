@@ -184,6 +184,18 @@ W zakres MVP nie wchodzą następujące funkcjonalności:
   4. Użytkownik jest przekierowywany do strony logowania
   5. Wylogowanie działa również po zamknięciu przeglądarki
 
+### US-012: System powtórek fiszek
+
+- Jako użytkownik, chcę przejść do trybu powtórek, aby efektywnie uczyć się z moich fiszek.
+- Kryteria akceptacji:
+  1. System losowo wybiera od 10 do 20 fiszek z kolekcji użytkownika
+  2. Fiszki są prezentowane w losowej kolejności
+  3. Użytkownik może nawigować między fiszkami używając przycisków "poprzedni" i "następny"
+  4. Na ostatniej fiszce przycisk "następny" zmienia się na "zakończ"
+  5. Po zakończeniu sesji, użytkownik jest przekierowywany do ekranu głównego
+  6. Jeśli użytkownik nie ma żadnych fiszek, system wyświetla komunikat o konieczności utworzenia fiszek
+  7. System prezentuje wyłącznie fiszki należące do zalogowanego użytkownika
+
 ## 6. Metryki sukcesu
 
 1. Wskaźniki adopcji AI:
