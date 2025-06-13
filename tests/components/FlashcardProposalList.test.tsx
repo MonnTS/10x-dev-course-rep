@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FlashcardProposalList from '@/components/generate/FlashcardProposalList';
-import type { ProposalState } from '@/components/views/GenerateView';
+import type { ProposalState } from '@/lib/hooks/useProposals';
 
 const baseProposal = (id: string): ProposalState => ({
   id,
@@ -13,44 +13,41 @@ const baseProposal = (id: string): ProposalState => ({
 });
 
 describe('<FlashcardProposalList /> derivations', () => {
-  it('enables "Save All" when all proposals valid', () => {
+  it('enables "Select all" checkbox when all proposals are valid', () => {
     const proposals = [baseProposal('1'), baseProposal('2')];
 
     render(
       <FlashcardProposalList
         proposals={proposals}
-        onUpdateProposal={vi.fn()}
-        onToggleSelectProposal={vi.fn()}
+        selectedCount={0}
         onToggleSelectAll={vi.fn()}
+        onToggleSelect={vi.fn()}
         onToggleEdit={vi.fn()}
-        onSave={vi.fn()}
-        onSaveAll={vi.fn()}
-        isSaving={false}
+        onUpdate={vi.fn()}
       />
     );
 
-    const saveAllBtn = screen.getByRole('button', { name: /save all/i });
-    expect(saveAllBtn).toBeEnabled();
+    const selectAllCheckbox = screen.getByRole('checkbox', {
+      name: /select all/i,
+    });
+    expect(selectAllCheckbox).toBeEnabled();
   });
 
-  it('disables "Save All" when at least one proposal invalid', () => {
-    const invalid = { ...baseProposal('3'), isValid: false } as ProposalState;
-    const proposals = [baseProposal('1'), invalid];
+  it('shows correct selection count in label', () => {
+    const proposals = [baseProposal('1'), baseProposal('2')];
 
     render(
       <FlashcardProposalList
         proposals={proposals}
-        onUpdateProposal={vi.fn()}
-        onToggleSelectProposal={vi.fn()}
+        selectedCount={1}
         onToggleSelectAll={vi.fn()}
+        onToggleSelect={vi.fn()}
         onToggleEdit={vi.fn()}
-        onSave={vi.fn()}
-        onSaveAll={vi.fn()}
-        isSaving={false}
+        onUpdate={vi.fn()}
       />
     );
 
-    const saveAllBtn = screen.getByRole('button', { name: /save all/i });
-    expect(saveAllBtn).toBeDisabled();
+    const label = screen.getByText(/select all \(1 \/ 2\)/i);
+    expect(label).toBeInTheDocument();
   });
 });
