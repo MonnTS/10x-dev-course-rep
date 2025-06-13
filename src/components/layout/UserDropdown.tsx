@@ -41,6 +41,12 @@ export function UserDropdown({ userEmail }: { userEmail: string }) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => (window.location.href = '/flashcards')}
+        >
+          View my flashcards
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -37,6 +37,12 @@ The application is aimed at learners who want to maximize the effectiveness of t
 
 - Openrouter.ai - Communication with AI models from OpenAI, Anthropic, Google, and others
 
+### Testing
+
+- Vitest – framework do testów jednostkowych i integracyjnych
+- @testing-library/react – narzędzia do testowania komponentów React
+- Playwright – testy end-to-end w przeglądarce
+
 ### CI/CD & Hosting
 
 - GitHub Actions - For CI/CD pipelines

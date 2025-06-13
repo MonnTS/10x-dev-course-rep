@@ -34,5 +34,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return redirect('/flashcards');
   }
 
+  if (url.pathname === '/') {
+    return session ? redirect('/flashcards') : redirect('/login');
+  }
+
   return next();
 });

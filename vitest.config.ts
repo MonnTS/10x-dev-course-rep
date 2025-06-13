@@ -4,7 +4,9 @@ import path from 'node:path';
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node',
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
+    exclude: ['node_modules', 'dist', 'tests/e2e'],
     coverage: {
       reporter: ['text', 'html'],
     },

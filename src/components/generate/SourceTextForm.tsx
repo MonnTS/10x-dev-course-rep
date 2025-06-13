@@ -27,7 +27,9 @@ const SourceTextForm = ({ onGenerate, isLoading }: SourceTextFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid w-full gap-1.5">
-        <Label htmlFor="source-text">Wklej tekst źródłowy</Label>
+        <Label htmlFor="source-text" className="sr-only">
+          Wklej tekst źródłowy
+        </Label>
         <Textarea
           id="source-text"
           placeholder="Wklej tutaj tekst (od 1000 do 10000 znaków), z którego wygenerujemy fiszki..."

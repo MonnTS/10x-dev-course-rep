@@ -14,7 +14,7 @@ const GenerationProgress = ({
   onRetry,
 }: GenerationProgressProps) => {
   return (
-    <div className="w-full flex flex-col items-center justify-center space-y-4 p-8 border rounded-lg">
+    <div className="w-full flex flex-col items-center justify-center space-y-4 p-8">
       {status === 'loading' && (
         <>
           <p className="text-lg">Analizowanie tekstu i generowanie fiszek...</p>

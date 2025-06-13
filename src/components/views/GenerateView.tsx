@@ -6,6 +6,13 @@ import SourceTextForm from '@/components/generate/SourceTextForm';
 import GenerationProgress from '@/components/generate/GenerationProgress';
 import FlashcardProposalList from '@/components/generate/FlashcardProposalList';
 import type { FlashcardProposal } from '@/types';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 
 const FRONT_MAX_LENGTH = 200;
 const BACK_MAX_LENGTH = 500;
@@ -235,32 +242,54 @@ const GenerateView = () => {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Generator Fiszke AI</h1>
+      <h1 className="text-4xl font-bold text-center">
+        Generator Fiszke&nbsp;AI
+      </h1>
 
       {showForm && (
-        <SourceTextForm onGenerate={handleGenerate} isLoading={isGenerating} />
+        <Card className="max-w-4xl mx-auto">
+          <CardHeader>
+            <CardTitle>Wklej swój tekst źródłowy</CardTitle>
+            <CardDescription>
+              Podaj fragment treści (od 1000 do 10&nbsp;000 znaków), z którego
+              wygenerujemy zestaw fiszek.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SourceTextForm
+              onGenerate={handleGenerate}
+              isLoading={isGenerating}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {(isGenerating || hasError) && (
-        <GenerationProgress
-          status={generationState as 'loading' | 'error'}
-          error={error}
-          onCancel={handleCancel}
-          onRetry={handleRetry}
-        />
+        <Card className="max-w-4xl mx-auto">
+          <CardContent>
+            <GenerationProgress
+              status={generationState}
+              error={error}
+              onCancel={handleCancel}
+              onRetry={handleRetry}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {showProposals && (
-        <FlashcardProposalList
-          proposals={proposalsState}
-          onUpdateProposal={handleUpdateProposal}
-          onToggleSelectProposal={handleToggleSelectProposal}
-          onToggleSelectAll={handleToggleSelectAll}
-          onToggleEdit={handleToggleEdit}
-          onSave={handleSave}
-          onSaveAll={handleSaveAll}
-          isSaving={saveState === 'loading'}
-        />
+        <div className="space-y-6 max-w-6xl mx-auto">
+          <FlashcardProposalList
+            proposals={proposalsState}
+            onUpdateProposal={handleUpdateProposal}
+            onToggleSelectProposal={handleToggleSelectProposal}
+            onToggleSelectAll={handleToggleSelectAll}
+            onToggleEdit={handleToggleEdit}
+            onSave={handleSave}
+            onSaveAll={handleSaveAll}
+            isSaving={saveState === 'loading'}
+          />
+        </div>
       )}
     </div>
   );

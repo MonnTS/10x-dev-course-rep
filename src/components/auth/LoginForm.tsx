@@ -28,10 +28,6 @@ export function LoginForm({ className }: { className?: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
   });
 
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
@@ -84,7 +80,7 @@ export function LoginForm({ className }: { className?: string }) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>EMail</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="name@example.com"
@@ -101,7 +97,7 @@ export function LoginForm({ className }: { className?: string }) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hasło</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
